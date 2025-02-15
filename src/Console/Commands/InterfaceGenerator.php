@@ -37,36 +37,8 @@ class InterfaceGenerator extends Command
             $this->getInterfaceFromFillables($model);
         }
 
-        // getting the model's columns will provide datatypes instead + id or uuid + created_at/updated_at
-        // if $table->timestamps() is present
-
         foreach ($models as $model) {
-            // get the current table
-            $table = $model->getTable();
-            $this->info($table);
-
-            // this provides a complete type list compared to fillables
-            $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
-
-            $model_interface = "export interface " . class_basename($model) . " { \n";
-
-            // parse returned columns
-            foreach ($columns as $column) {
-                $column_name = $column['name'];
-                $type = $this->mapTypes($column['type_name']);
-                $column_nullable = $column['nullable'];
-
-                if ($column_nullable){
-                    $model_interface .= '   ' . $column_name . '?: ' . $type . ";\n";
-                }else {
-                    $model_interface .= '   ' . $column_name . ': ' . $type . ";\n";
-                }
-
-            }
-            $model_interface .= "}\n";
-
-            $this->info($model_interface);
-
+            $this->getInterfaceFromMigrations($model);
         }
 
     }
@@ -114,6 +86,34 @@ class InterfaceGenerator extends Command
 
         $this->info($model_interface);
         // interface is missing id, created_at, updated_at
+    }
+
+    private function getInterfaceFromMigrations(Model $model): void
+    {
+        // get the current table
+        $table = $model->getTable();
+
+        // this provides a complete type list compared to fillables
+        $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
+
+        $model_interface = "export interface " . class_basename($model) . " { \n";
+
+        // parse returned columns
+        foreach ($columns as $column) {
+            $column_name = $column['name'];
+            $type = $this->mapTypes($column['type_name']);
+            $column_nullable = $column['nullable'];
+
+            if ($column_nullable){
+                $model_interface .= '   ' . $column_name . '?: ' . $type . ";\n";
+            }else {
+                $model_interface .= '   ' . $column_name . ': ' . $type . ";\n";
+            }
+
+        }
+        $model_interface .= "}\n";
+
+        $this->info($model_interface);
     }
 
     private function mapTypes($column_type_name): string
