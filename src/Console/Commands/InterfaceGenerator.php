@@ -47,7 +47,7 @@ class InterfaceGenerator extends Command
 
             // this provides a complete type list compared to fillables
             $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
-
+            Log::info($columns);
 
             $model_interface = "export interface " . class_basename($model) . " { \n";
 
@@ -55,13 +55,26 @@ class InterfaceGenerator extends Command
             foreach ($columns as $column) {
                 $column_name = $column['name'];
                 $column_type_name = $column['type_name'];
-                $column_type = $column['type'];
                 $column_nullable = $column['nullable'];
 
+                $type = match ($column_type_name) {
+                    'tinyint' => 'boolean',
+                    'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
+                    'smallint',  'mediumint', 'int', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
+                    'datetime', 'date', 'timestamp' => 'date',
+                    'blob' => 'unknown', // not sure
+                    'geometry' => 'unknown', // not sure
+                    'enum' => 'unknown', // not sure
+                    'set' => 'unknown', // not sure
+                    // if not matched return "unknown" type, update this as unknowns are found
+                    default => 'unknown'
+                };
+
+
                 if ($column_nullable){
-                    $model_interface .= '   ' . $column_name . '?: ' . $column_type_name . ";\n";
+                    $model_interface .= '   ' . $column_name . '?: ' . $type . ";\n";
                 }else {
-                    $model_interface .= '   ' . $column_name . ': ' . $column_type_name . ";\n";
+                    $model_interface .= '   ' . $column_name . ': ' . $type . ";\n";
                 }
 
             }
