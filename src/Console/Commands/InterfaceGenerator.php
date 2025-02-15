@@ -32,14 +32,14 @@ class InterfaceGenerator extends Command
     public function handle(): int
     {
         $mode = $this->option('mode');
-        if (! in_array($mode, ['migrations', 'fillables'])) {
+        if (! in_array($mode, ['migrations', 'fillables'], true)) {
             $this->error('Invalid generation mode, please use either "migrations" or "fillables".');
             return self::FAILURE;
         }
 
         $models = $this->getModels();
 
-        if ($this->option('mode') === 'migrations') {
+        if ($mode === 'migrations') {
 
             // check if the user has migrations table, if they haven't this command will do nothing so alert the user
             if (! Schema::hasTable('migrations')) {
@@ -51,7 +51,7 @@ class InterfaceGenerator extends Command
                 $this->getInterfaceFromMigrations($model);
             }
 
-        }elseif ($this->option('mode') === 'fillables') {
+        }else {
             foreach ($models as $model) {
                 $this->getInterfaceFromFillables($model);
             }
@@ -70,7 +70,7 @@ class InterfaceGenerator extends Command
         $models_path = app_path('Models');
 
         // remove . .. from results
-        $files = array_diff(scandir($models_path), array('.', '..'));
+        $files = array_diff(scandir($models_path), ['.', '..']);
 
         $models = [];
 
@@ -96,9 +96,9 @@ class InterfaceGenerator extends Command
 
         $model_interface = "export interface " . class_basename($model) . " { \n";
         foreach ($model->getFillable() as $fillable) {
-            $model_interface .= '   ' . $fillable . ": any;\n";
+            $model_interface .= "   $fillable: any;\n";
         }
-        $model_interface .= "}";
+        $model_interface .= "}\n";
 
         $this->info($model_interface);
         // interface is missing id, created_at, updated_at
@@ -118,13 +118,9 @@ class InterfaceGenerator extends Command
         foreach ($columns as $column) {
             $column_name = $column['name'];
             $type = $this->mapTypes($column['type_name']);
-            $column_nullable = $column['nullable'];
+            $column_nullable = !empty($column['nullable']) ? '?' : '';
 
-            if ($column_nullable){
-                $model_interface .= '   ' . $column_name . '?: ' . $type . ";\n";
-            }else {
-                $model_interface .= '   ' . $column_name . ': ' . $type . ";\n";
-            }
+            $model_interface .= "   $column_name$column_nullable: $type;\n";
 
         }
         $model_interface .= "}\n";
