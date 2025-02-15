@@ -47,29 +47,14 @@ class InterfaceGenerator extends Command
 
             // this provides a complete type list compared to fillables
             $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
-            Log::info($columns);
 
             $model_interface = "export interface " . class_basename($model) . " { \n";
 
             // parse returned columns
             foreach ($columns as $column) {
                 $column_name = $column['name'];
-                $column_type_name = $column['type_name'];
+                $type = $this->mapTypes($column['type_name']);
                 $column_nullable = $column['nullable'];
-
-                $type = match ($column_type_name) {
-                    'tinyint' => 'boolean',
-                    'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
-                    'smallint',  'mediumint', 'int', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
-                    'datetime', 'date', 'timestamp' => 'date',
-                    'blob' => 'unknown', // not sure
-                    'geometry' => 'unknown', // not sure
-                    'enum' => 'unknown', // not sure
-                    'set' => 'unknown', // not sure
-                    // if not matched return "unknown" type, update this as unknowns are found
-                    default => 'unknown'
-                };
-
 
                 if ($column_nullable){
                     $model_interface .= '   ' . $column_name . '?: ' . $type . ";\n";
@@ -129,5 +114,21 @@ class InterfaceGenerator extends Command
 
         $this->info($model_interface);
         // interface is missing id, created_at, updated_at
+    }
+
+    private function mapTypes($column_type_name): string
+    {
+        return match ($column_type_name) {
+            'tinyint' => 'boolean',
+            'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
+            'smallint',  'mediumint', 'int', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
+            'datetime', 'date', 'timestamp' => 'date',
+            'blob' => 'unknown', // TODO conduct testing to narrow down type
+            'geometry' => 'unknown', // TODO conduct testing to narrow down type
+            'enum' => 'unknown', // TODO conduct testing to narrow down type
+            'set' => 'unknown',// TODO conduct testing to narrow down type
+            // if not matched return "unknown" type, update this as unknowns are found
+            default => 'unknown'
+        };
     }
 }
