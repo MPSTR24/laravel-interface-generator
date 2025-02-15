@@ -26,7 +26,15 @@ class InterfaceGenerator extends Command
      * Execute the console command.
      * @throws ReflectionException
      */
-    public function handle()
+    public function handle(): void
+    {
+        $models = $this->getModels();
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function getModels(): array
     {
         // Find all model within the project
 
@@ -35,6 +43,8 @@ class InterfaceGenerator extends Command
         // remove . .. from results
         $files = array_diff(scandir($models_path), array('.', '..'));
 
+        $models = [];
+
         foreach ($files as $file) {
             $this->info($file);
 
@@ -42,10 +52,13 @@ class InterfaceGenerator extends Command
             $file_name_only = pathinfo($file, PATHINFO_FILENAME);
 
             // build model path
-            $model_path = 'App\\Models\\'.$file_name_only;
+            $model_path = 'App\\Models\\' . $file_name_only;
 
             $model_reflection = new ReflectionClass($model_path);
-            $this->info("Model: " . $model_reflection->getName());
+
+            $models[] = $model_reflection->newInstance();
         }
+
+        return $models;
     }
 }
