@@ -3,6 +3,7 @@
 namespace Mpstr24\InterfaceTyper\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Model;
 use ReflectionClass;
 use ReflectionException;
 
@@ -30,20 +31,8 @@ class InterfaceGenerator extends Command
     {
         $models = $this->getModels();
 
-        // with each model, now collect the fillables
         foreach ($models as $model) {
-            $fillables = $model->getFillable();
-
-            // now create rough interfaces
-
-            $model_interface = "export interface " . class_basename($model) . " { \n";
-            foreach ($fillables as $fillable) {
-                $model_interface .= '   ' . $fillable . ": any;\n";
-            }
-            $model_interface .= "}";
-
-            $this->info($model_interface);
-            // interface is missing id, created_at, updated_at
+            $this->getInterfaceFromFillables($model);
         }
 
     }
@@ -77,5 +66,19 @@ class InterfaceGenerator extends Command
         }
 
         return $models;
+    }
+
+    private function getInterfaceFromFillables(Model $model): void
+    {
+        // now create rough interfaces
+
+        $model_interface = "export interface " . class_basename($model) . " { \n";
+        foreach ($model->getFillable() as $fillable) {
+            $model_interface .= '   ' . $fillable . ": any;\n";
+        }
+        $model_interface .= "}";
+
+        $this->info($model_interface);
+        // interface is missing id, created_at, updated_at
     }
 }
