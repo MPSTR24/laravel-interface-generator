@@ -5,6 +5,7 @@ namespace Mpstr24\InterfaceTyper\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use ReflectionClass;
 use ReflectionException;
 
@@ -39,9 +40,17 @@ class InterfaceGenerator extends Command
         $models = $this->getModels();
 
         if ($this->option('mode') === 'migrations') {
+
+            // check if the user has migrations table, if they haven't this command will do nothing so alert the user
+            if (! Schema::hasTable('migrations')) {
+                $this->error('You have not ran any migrations, please run them first or use --mode=fillables');
+                return self::FAILURE;
+            }
+
             foreach ($models as $model) {
                 $this->getInterfaceFromMigrations($model);
             }
+
         }elseif ($this->option('mode') === 'fillables') {
             foreach ($models as $model) {
                 $this->getInterfaceFromFillables($model);
