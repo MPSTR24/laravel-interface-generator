@@ -1,0 +1,26 @@
+{
+    "name": "mpstr24/interfacetyper",
+    "description": "Laravel package to generate TypeScript interfaces.",
+    "type": "package",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Mpstr24\\InterfaceTyper\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mpstr24\\InterfaceTyper\\InterfaceTyperServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "MPSTR24",
+            "email": "74561948+MPSTR24@users.noreply.github.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
