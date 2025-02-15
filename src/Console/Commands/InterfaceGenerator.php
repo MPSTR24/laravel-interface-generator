@@ -75,7 +75,6 @@ class InterfaceGenerator extends Command
         $models = [];
 
         foreach ($files as $file) {
-            $this->info($file);
 
             // get file name only, strip .php
             $file_name_only = pathinfo($file, PATHINFO_FILENAME);
