@@ -5,7 +5,6 @@ namespace Mpstr24\InterfaceTyper\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use ReflectionClass;
 use ReflectionException;
 
@@ -16,7 +15,7 @@ class InterfaceGenerator extends Command
      *
      * @var string
      */
-    protected $signature = 'generate:interfaces';
+    protected $signature = 'generate:interfaces {--M|mode=migrations : Mode to generate interfaces (migrations|fillables)}';
 
     /**
      * The console command description.
@@ -29,18 +28,27 @@ class InterfaceGenerator extends Command
      * Execute the console command.
      * @throws ReflectionException
      */
-    public function handle(): void
+    public function handle(): int
     {
+        $mode = $this->option('mode');
+        if (! in_array($mode, ['migrations', 'fillables'])) {
+            $this->error('Invalid generation mode, please use either "migrations" or "fillables".');
+            return self::FAILURE;
+        }
+
         $models = $this->getModels();
 
-        foreach ($models as $model) {
-            $this->getInterfaceFromFillables($model);
+        if ($this->option('mode') === 'migrations') {
+            foreach ($models as $model) {
+                $this->getInterfaceFromMigrations($model);
+            }
+        }elseif ($this->option('mode') === 'fillables') {
+            foreach ($models as $model) {
+                $this->getInterfaceFromFillables($model);
+            }
         }
 
-        foreach ($models as $model) {
-            $this->getInterfaceFromMigrations($model);
-        }
-
+        return self::SUCCESS;
     }
 
     /**
