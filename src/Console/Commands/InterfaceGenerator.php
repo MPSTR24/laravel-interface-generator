@@ -58,7 +58,12 @@ class InterfaceGenerator extends Command
                 $column_type = $column['type'];
                 $column_nullable = $column['nullable'];
 
-                $model_interface .= '   ' . $column_name . ': ' . $column_type_name . ";\n";
+                if ($column_nullable){
+                    $model_interface .= '   ' . $column_name . '?: ' . $column_type_name . ";\n";
+                }else {
+                    $model_interface .= '   ' . $column_name . ': ' . $column_type_name . ";\n";
+                }
+
             }
             $model_interface .= "}\n";
 
