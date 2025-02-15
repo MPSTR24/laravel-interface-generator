@@ -16,7 +16,7 @@ class InterfaceGenerator extends Command
      *
      * @var string
      */
-    protected $signature = 'generate:interfaces {--M|mode=migrations : Mode to generate interfaces (migrations|fillables)}';
+    protected $signature = 'generate:interfaces {--M|mode=migrations : Mode to generate interfaces (migrations|fillables)} {--S|suffix=Interface : Add a suffix to generated interface names}';
 
     /**
      * The console command description.
@@ -37,6 +37,8 @@ class InterfaceGenerator extends Command
             return self::FAILURE;
         }
 
+        $suffix = $this->option('suffix');
+
         $models = $this->getModels();
 
         if ($mode === 'migrations') {
@@ -48,12 +50,12 @@ class InterfaceGenerator extends Command
             }
 
             foreach ($models as $model) {
-                $this->getInterfaceFromMigrations($model);
+                $this->getInterfaceFromMigrations($model, $suffix);
             }
 
         }else {
             foreach ($models as $model) {
-                $this->getInterfaceFromFillables($model);
+                $this->getInterfaceFromFillables($model, $suffix);
             }
         }
 
@@ -90,21 +92,23 @@ class InterfaceGenerator extends Command
         return $models;
     }
 
-    private function getInterfaceFromFillables(Model $model): void
+    private function getInterfaceFromFillables(Model $model, string|null $suffix): void
     {
-        // now create rough interfaces
+        $interface_name = class_basename($model);
+        if (!empty($suffix)) {
+            $interface_name .= $suffix;
+        }
 
-        $model_interface = "export interface " . class_basename($model) . " { \n";
+        $model_interface = "export interface " . $interface_name . " { \n";
         foreach ($model->getFillable() as $fillable) {
             $model_interface .= "   $fillable: any;\n";
         }
         $model_interface .= "}\n";
 
         $this->info($model_interface);
-        // interface is missing id, created_at, updated_at
     }
 
-    private function getInterfaceFromMigrations(Model $model): void
+    private function getInterfaceFromMigrations(Model $model, string|null $suffix): void
     {
         // get the current table
         $table = $model->getTable();
@@ -112,7 +116,12 @@ class InterfaceGenerator extends Command
         // this provides a complete type list compared to fillables
         $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
 
-        $model_interface = "export interface " . class_basename($model) . " { \n";
+        $interface_name = class_basename($model);
+        if (!empty($suffix)) {
+            $interface_name .= $suffix;
+        }
+
+        $model_interface = "export interface " . $interface_name . " { \n";
 
         // parse returned columns
         foreach ($columns as $column) {
