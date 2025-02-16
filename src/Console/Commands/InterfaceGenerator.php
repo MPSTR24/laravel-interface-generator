@@ -4,10 +4,17 @@ namespace Mpstr24\InterfaceTyper\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionMethod;
 
 class InterfaceGenerator extends Command
 {
@@ -41,6 +48,11 @@ class InterfaceGenerator extends Command
 
         $models = $this->getModels();
 
+        $valid_model_names = [];
+        foreach ($models as $model) {
+            $valid_model_names[] = strtolower(class_basename($model));
+        }
+
         if ($mode === 'migrations') {
 
             // check if the user has migrations table, if they haven't this command will do nothing so alert the user
@@ -50,13 +62,16 @@ class InterfaceGenerator extends Command
             }
 
             foreach ($models as $model) {
-                $this->getInterfaceFromMigrations($model, $suffix);
+
+                $this->getInterfaceFromMigrations($model, $suffix, $valid_model_names);
             }
 
         }else {
+
             foreach ($models as $model) {
-                $this->getInterfaceFromFillables($model, $suffix);
+                $this->getInterfaceFromFillables($model, $suffix, $valid_model_names);
             }
+
         }
 
         return self::SUCCESS;
@@ -92,7 +107,7 @@ class InterfaceGenerator extends Command
         return $models;
     }
 
-    private function getInterfaceFromFillables(Model $model, string|null $suffix): void
+    private function getInterfaceFromFillables(Model $model, string|null $suffix, array $valid_model_names): void
     {
         $interface_name = class_basename($model);
         if (!empty($suffix)) {
@@ -103,12 +118,15 @@ class InterfaceGenerator extends Command
         foreach ($model->getFillable() as $fillable) {
             $model_interface .= "   $fillable: any;\n";
         }
+
+        $this->addRelationshipsToInterface($model, $valid_model_names, $suffix, $model_interface);
+
         $model_interface .= "}\n";
 
         $this->info($model_interface);
     }
 
-    private function getInterfaceFromMigrations(Model $model, string|null $suffix): void
+    private function getInterfaceFromMigrations(Model $model, string|null $suffix, array $valid_model_names): void
     {
         // get the current table
         $table = $model->getTable();
@@ -132,6 +150,9 @@ class InterfaceGenerator extends Command
             $model_interface .= "   $column_name$column_nullable: $type;\n";
 
         }
+
+        $this->addRelationshipsToInterface($model, $valid_model_names, $suffix, $model_interface);
+
         $model_interface .= "}\n";
 
         $this->info($model_interface);
@@ -151,5 +172,54 @@ class InterfaceGenerator extends Command
             // if not matched return "unknown" type, update this as unknowns are found
             default => 'unknown'
         };
+    }
+
+    private function getRelationshipsFromMethods(Model $model, array $valid_model_names): array
+    {
+        $relationships = [];
+        // relationships within models are going to be public functions whose names match other models
+        // use reflection to access these
+        $reflection = new ReflectionClass($model);
+        foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+
+            // relationship methods will match model names in singular
+            $method_name = $method->getName();
+            $singular_method_name = Str::singular($method_name);
+
+            if (!in_array($singular_method_name, $valid_model_names, true)) {
+                continue;
+            }
+
+            // check the method works on the model, as we may have made a plural method singular
+            try{
+                $relationship = $method->invoke($model);
+                // store the returned instance e.g. HasMany
+                $relationships[$method_name] = $relationship;
+            } catch (\Exception $e) {
+                continue;
+            }
+
+        }
+
+        return $relationships;
+    }
+
+    private function addRelationshipsToInterface($model, $valid_model_names, string $suffix, string &$model_interface): void{
+        $model_relationships = $this->getRelationshipsFromMethods($model, $valid_model_names);
+
+        foreach ($model_relationships as $method_name => $relationship) {
+            // get the related model
+            $related_model = $model->{$method_name}()->getRelated();
+            $related_interface_name = class_basename($related_model);
+            if (!empty($suffix)) {
+                $related_interface_name .= $suffix;
+            }
+
+            if ($relationship instanceof HasMany || $relationship instanceof BelongsToMany || $relationship instanceof MorphMany) {
+                $model_interface .= "   $method_name?: {$related_interface_name}[];\n";
+            } else {
+                $model_interface .= "   $method_name?: $related_interface_name;\n";
+            }
+        }
     }
 }
