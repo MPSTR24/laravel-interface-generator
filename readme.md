@@ -1,4 +1,4 @@
-# InterfaceTyper
+# Laravel InterfaceTyper
 
 This is a Laravel package that aims to generate TypeScript interfaces based off the models with Laravel.
 
