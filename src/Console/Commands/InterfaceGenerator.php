@@ -93,6 +93,12 @@ class InterfaceGenerator extends Command
 
         foreach ($files as $file) {
 
+            // ensure php files only
+
+            if (pathinfo($file, PATHINFO_EXTENSION) !== 'php') {
+                continue;
+            }
+
             // get file name only, strip .php
             $file_name_only = pathinfo($file, PATHINFO_FILENAME);
 
