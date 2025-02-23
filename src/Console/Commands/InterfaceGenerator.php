@@ -164,7 +164,7 @@ class InterfaceGenerator extends Command
         $this->info($model_interface);
     }
 
-    private function mapTypes($column_type_name): string
+    private function mapTypes(string $column_type_name): string
     {
         return match ($column_type_name) {
             'tinyint' => 'boolean',
@@ -210,7 +210,7 @@ class InterfaceGenerator extends Command
         return $relationships;
     }
 
-    private function addRelationshipsToInterface($model, $valid_model_names, string $suffix, string &$model_interface): void{
+    private function addRelationshipsToInterface(Model $model, $valid_model_names, string $suffix, string &$model_interface): void{
         $model_relationships = $this->getRelationshipsFromMethods($model, $valid_model_names);
 
         foreach ($model_relationships as $method_name => $relationship) {
