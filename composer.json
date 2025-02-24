@@ -3,6 +3,11 @@
     "description": "Laravel package to generate TypeScript interfaces.",
     "type": "package",
     "license": "MIT",
+    "scripts": {
+        "format": "vendor/bin/pint",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage"
+    },
     "autoload": {
         "psr-4": {
             "Mpstr24\\InterfaceTyper\\": "src/"
@@ -27,5 +32,22 @@
         "illuminate/console": "^8.0|^9.0|^10.0|^11.0",
         "illuminate/support": "^8.0|^9.0|^10.0|^11.0",
         "illuminate/database": "^8.0|^9.0|^10.0|^11.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.14",
+        "orchestra/testbench": "9.x-dev",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mpstr24\\InterfaceTyper\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     }
 }
