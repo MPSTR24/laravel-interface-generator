@@ -41,7 +41,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Mpstr24\\InterfaceTyper\\Tests\\": "tests/"
+            "Mpstr24\\InterfaceTyper\\Tests\\": "tests/",
+            "App\\": "tests/fake/app/"
         }
     },
     "config": {

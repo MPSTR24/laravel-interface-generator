@@ -13,4 +13,23 @@ class TestCase extends Orchestra
             InterfaceTyperServiceProvider::class
         ];
     }
+
+    protected function getEnvironmentSetUp($app): void
+    {
+        $app->setBasePath(__DIR__.'/fake');
+
+        $app['config']->set('database.default', 'testing');
+        $app['config']->set('database.connections.testing', [
+            'driver'   => 'sqlite',
+            'database' => ':memory:',
+            'prefix'   => '',
+        ]);
+
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->loadMigrationsFrom(__DIR__.'/fake/database/migrations');
+    }
 }
