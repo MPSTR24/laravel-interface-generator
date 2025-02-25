@@ -7,14 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use Throwable;
 
 class InterfaceGenerator extends Command
 {
@@ -214,8 +213,27 @@ class InterfaceGenerator extends Command
         $model_relationships = $this->getRelationshipsFromMethods($model, $valid_model_names);
 
         foreach ($model_relationships as $method_name => $relationship) {
+
+            // check that the method exists in the model
+            if (!method_exists($model, $method_name)) {
+                continue;
+            }
+
+            // check that getRelated() can run on the method
+            try{
+                $related_method_instance = $model->{$method_name}();
+
+                if (!method_exists($model, 'getRelated')) {
+                    continue;
+                }
+
+                $related_model = $model->{$method_name}()->getRelated();
+            }catch (Throwable $e){
+                continue;
+            }
+
+
             // get the related model
-            $related_model = $model->{$method_name}()->getRelated();
             $related_interface_name = class_basename($related_model);
             if (!empty($suffix)) {
                 $related_interface_name .= $suffix;
