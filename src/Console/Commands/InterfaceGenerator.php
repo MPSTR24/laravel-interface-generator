@@ -223,7 +223,7 @@ class InterfaceGenerator extends Command
             try{
                 $related_method_instance = $model->{$method_name}();
 
-                if (!method_exists($model, 'getRelated')) {
+                if (!method_exists($related_method_instance, 'getRelated')) {
                     continue;
                 }
 
