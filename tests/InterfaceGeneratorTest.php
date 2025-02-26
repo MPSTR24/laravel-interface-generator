@@ -5,10 +5,12 @@ namespace Mpstr24\InterfaceTyper\Tests;
 
 use PHPUnit\Framework\Attributes\CoversMethod;
 
+/**
+ * @covers \Mpstr24\InterfaceTyper\Console\Commands\InterfaceGenerator::getInterfaceFromFillables
+ */
 #[CoversMethod('Mpstr24\Interfacetyper\Console\Commands\InterfaceGenerator','getInterfaceFromFillables')]
 class InterfaceGeneratorTest extends TestCase
 {
-
 
     public function testGeneratesCorrectTestUserInterfaceFromFillables()
     {
