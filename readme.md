@@ -12,7 +12,7 @@ Currently, this package has only been tested with MySQL.
 To install please run the following command.
 
 ```bash
-composer require mpstr24/interfacetyper
+composer require mpstr24/laravel-interface-typer
 ```
 
 # Usage
