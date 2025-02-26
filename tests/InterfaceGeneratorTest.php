@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\CoversMethod;
 /**
  * @covers \Mpstr24\InterfaceTyper\Console\Commands\InterfaceGenerator::getInterfaceFromFillables
  */
-#[CoversMethod('Mpstr24\Interfacetyper\Console\Commands\InterfaceGenerator','getInterfaceFromFillables')]
+//#[CoversMethod('Mpstr24\Interfacetyper\Console\Commands\InterfaceGenerator','getInterfaceFromFillables')] FIXME
 class InterfaceGeneratorTest extends TestCase
 {
 
