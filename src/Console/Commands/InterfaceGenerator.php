@@ -22,7 +22,10 @@ class InterfaceGenerator extends Command
      *
      * @var string
      */
-    protected $signature = 'generate:interfaces {--M|mode=migrations : Mode to generate interfaces (migrations|fillables)} {--S|suffix=Interface : Add a suffix to generated interface names}';
+    protected $signature = 'generate:interfaces
+        {--M|mode=migrations : Mode to generate interfaces (migrations|fillables)}
+        {--S|suffix=Interface : Add a suffix to generated interface names}
+        {--model=all : Select the model to generate an interface for, default is all models}';
 
     /**
      * The console command description.
@@ -47,7 +50,9 @@ class InterfaceGenerator extends Command
 
         $suffix = $this->option('suffix');
 
-        $models = $this->getModels();
+        $modelSelection = $this->option('model');
+
+        $models = $this->getModels($modelSelection);
 
         $valid_model_names = [];
         foreach ($models as $model) {
@@ -82,10 +87,9 @@ class InterfaceGenerator extends Command
     /**
      * @throws ReflectionException
      */
-    private function getModels(): array
+    private function getModels(?string $modelSelection): array
     {
         // Find all model within the project
-
         $models_path = app_path('Models');
 
         // remove . .. from results
@@ -103,6 +107,10 @@ class InterfaceGenerator extends Command
 
             // get file name only, strip .php
             $file_name_only = pathinfo($file, PATHINFO_FILENAME);
+
+            if (! empty($modelSelection) && strtolower($modelSelection) !== 'all' && strtolower($modelSelection) !== strtolower($file_name_only)) {
+                continue;
+            }
 
             // build model path
             $model_path = 'App\\Models\\'.$file_name_only;
@@ -140,7 +148,24 @@ class InterfaceGenerator extends Command
         $table = $model->getTable();
 
         // this provides a complete type list compared to fillables
-        $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
+
+        // account for sqlite not having getColumns
+        // TODO implement tests for other DB types - mysql, sqlite for now
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            $columns = DB::select("PRAGMA table_info({$table})");
+
+            $columns = array_map(function ($column) {
+                return [
+                    'name' => $column->name,
+                    'type_name' => $column->type,
+                    'nullable' => ! $column->notnull,
+                ];
+            }, $columns);
+
+        } else {
+            // MySQL
+            $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
+        }
 
         $interface_name = class_basename($model);
         if (! empty($suffix)) {
@@ -168,17 +193,18 @@ class InterfaceGenerator extends Command
 
     private function mapTypes(string $column_type_name): string
     {
+        // TODO maybe map per DB Driver?
         return match ($column_type_name) {
             'tinyint' => 'boolean',
             'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
-            'smallint',  'mediumint', 'int', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
+            'smallint',  'mediumint', 'int', 'integer', 'INTEGER', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
             'datetime', 'date', 'timestamp' => 'date',
             'blob' => 'unknown', // TODO conduct testing to narrow down type
             'geometry' => 'unknown', // TODO conduct testing to narrow down type
             'enum' => 'unknown', // TODO conduct testing to narrow down type
             'set' => 'unknown',// TODO conduct testing to narrow down type
             // if not matched return "unknown" type, update this as unknowns are found
-            default => 'unknown'
+            default => 'unknown' // Set to $column_type_name to help debug unknown types when they appear
         };
     }
 

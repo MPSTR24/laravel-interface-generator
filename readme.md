@@ -35,6 +35,22 @@ php artisan generate:interfaces --mode=fillables
 php artisan generate:interfaces --mode=migrations
 ```
 
+## Model
+You can also choose to generate an interface for a specific model only by using --model. By default, all models will be used.
+
+For example:
+
+```bash
+php artisan generate:interfaces --model=User
+```
+
+The selection is also case-insensitive. As such, the below command will return the same as the above.
+
+```bash
+php artisan generate:interfaces --model=user
+```
+
+
 ## Suffix
 
 You can change or remove the suffix using --suffix (-S).
