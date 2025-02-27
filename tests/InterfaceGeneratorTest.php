@@ -17,6 +17,7 @@ class InterfaceGeneratorTest extends TestCase
      */
     public function test_generates_correct_test_user_interface_from_fillables(): void
     {
+        $this->withoutMockingConsoleOutput();
         Artisan::call('generate:interfaces', ['--mode' => 'fillables', '--model' => 'TestUser']);
         $actualOutput = TestUtilities::interfaceOutputNormaliser(Artisan::output());
 
@@ -38,6 +39,7 @@ class InterfaceGeneratorTest extends TestCase
      */
     public function test_generates_correct_test_user_interface_from_migrations(): void
     {
+        $this->withoutMockingConsoleOutput();
         Artisan::call('generate:interfaces', ['--mode' => 'migrations', '--model' => 'TestUser']);
         $actualOutput = TestUtilities::interfaceOutputNormaliser(Artisan::output());
 
