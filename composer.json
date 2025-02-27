@@ -6,7 +6,8 @@
     "scripts": {
         "format": "vendor/bin/pint",
         "test": "vendor/bin/pest",
-        "test-coverage": "vendor/bin/pest --coverage"
+        "test-coverage": "vendor/bin/pest --coverage",
+        "analyse": "phpstan analyse -v"
     },
     "autoload": {
         "psr-4": {
@@ -36,7 +37,8 @@
         "laravel/pint": "^1.14",
         "orchestra/testbench": "^10.0.0||^9.0.0||^8.22.0",
         "pestphp/pest": "^2.0 || ^3.0",
-        "pestphp/pest-plugin-laravel": "^2.0 || ^3.0"
+        "pestphp/pest-plugin-laravel": "^2.0 || ^3.0",
+        "larastan/larastan": "3.x-dev"
     },
     "autoload-dev": {
         "psr-4": {
