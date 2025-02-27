@@ -17,7 +17,7 @@ class InterfaceGeneratorTest extends TestCase
      */
     public function test_generates_correct_test_user_interface_from_fillables(): void
     {
-        Artisan::call('generate:interfaces', ['--mode' => 'fillables']);
+        Artisan::call('generate:interfaces', ['--mode' => 'fillables', '--model' => 'TestUser']);
         $actualOutput = TestUtilities::interfaceOutputNormaliser(Artisan::output());
 
         $expectedOutput = [
@@ -25,6 +25,30 @@ class InterfaceGeneratorTest extends TestCase
             "first_name: any;",
             "last_name: any;",
             "email: any;",
+            "}"
+        ];
+
+        TestUtilities::interfaceLineCountMatcher($expectedOutput, $actualOutput, $this);
+
+        TestUtilities::interfaceLineMatcher($expectedOutput, $actualOutput, $this);
+    }
+
+    /**
+     * @return void
+     */
+    public function test_generates_correct_test_user_interface_from_migrations(): void
+    {
+        Artisan::call('generate:interfaces', ['--mode' => 'migrations', '--model' => 'TestUser']);
+        $actualOutput = TestUtilities::interfaceOutputNormaliser(Artisan::output());
+
+        $expectedOutput = [
+            "export interface TestUserInterface {",
+            "id: number;",
+            "first_name: string;",
+            "last_name: string;",
+            "email: string;",
+            "created_at?: date;",
+            "updated_at?: date;",
             "}"
         ];
 
