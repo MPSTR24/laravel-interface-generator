@@ -87,7 +87,7 @@ class InterfaceGenerator extends Command
     /**
      * @throws ReflectionException
      */
-    private function getModels(string|null $modelSelection): array
+    private function getModels(?string $modelSelection): array
     {
         // Find all model within the project
         $models_path = app_path('Models');
@@ -108,7 +108,7 @@ class InterfaceGenerator extends Command
             // get file name only, strip .php
             $file_name_only = pathinfo($file, PATHINFO_FILENAME);
 
-            if (!empty($modelSelection) && strtolower($modelSelection) !== "all" && strtolower($modelSelection) !== strtolower($file_name_only)) {
+            if (! empty($modelSelection) && strtolower($modelSelection) !== 'all' && strtolower($modelSelection) !== strtolower($file_name_only)) {
                 continue;
             }
 
@@ -158,11 +158,11 @@ class InterfaceGenerator extends Command
                 return [
                     'name' => $column->name,
                     'type_name' => $column->type,
-                    'nullable' => !$column->notnull,
+                    'nullable' => ! $column->notnull,
                 ];
             }, $columns);
 
-        }else{
+        } else {
             // MySQL
             $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
         }

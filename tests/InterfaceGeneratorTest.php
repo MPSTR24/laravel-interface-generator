@@ -11,10 +11,6 @@ use Mpstr24\InterfaceTyper\Tests\Helpers\TestUtilities;
 // #[CoversMethod('Mpstr24\Interfacetyper\Console\Commands\InterfaceGenerator','getInterfaceFromFillables')] FIXME
 class InterfaceGeneratorTest extends TestCase
 {
-
-    /**
-     * @return void
-     */
     public function test_generates_correct_test_user_interface_from_fillables(): void
     {
         $this->withoutMockingConsoleOutput();
@@ -22,11 +18,11 @@ class InterfaceGeneratorTest extends TestCase
         $actualOutput = TestUtilities::interfaceOutputNormaliser(Artisan::output());
 
         $expectedOutput = [
-            "export interface TestUserInterface {",
-            "first_name: any;",
-            "last_name: any;",
-            "email: any;",
-            "}"
+            'export interface TestUserInterface {',
+            'first_name: any;',
+            'last_name: any;',
+            'email: any;',
+            '}',
         ];
 
         TestUtilities::interfaceLineCountMatcher($expectedOutput, $actualOutput, $this);
@@ -34,9 +30,6 @@ class InterfaceGeneratorTest extends TestCase
         TestUtilities::interfaceLineMatcher($expectedOutput, $actualOutput, $this);
     }
 
-    /**
-     * @return void
-     */
     public function test_generates_correct_test_user_interface_from_migrations(): void
     {
         $this->withoutMockingConsoleOutput();
@@ -44,14 +37,14 @@ class InterfaceGeneratorTest extends TestCase
         $actualOutput = TestUtilities::interfaceOutputNormaliser(Artisan::output());
 
         $expectedOutput = [
-            "export interface TestUserInterface {",
-            "id: number;",
-            "first_name: string;",
-            "last_name: string;",
-            "email: string;",
-            "created_at?: date;",
-            "updated_at?: date;",
-            "}"
+            'export interface TestUserInterface {',
+            'id: number;',
+            'first_name: string;',
+            'last_name: string;',
+            'email: string;',
+            'created_at?: date;',
+            'updated_at?: date;',
+            '}',
         ];
 
         TestUtilities::interfaceLineCountMatcher($expectedOutput, $actualOutput, $this);
