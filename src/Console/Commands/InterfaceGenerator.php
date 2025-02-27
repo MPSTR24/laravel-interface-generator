@@ -148,7 +148,24 @@ class InterfaceGenerator extends Command
         $table = $model->getTable();
 
         // this provides a complete type list compared to fillables
-        $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
+
+        // account for sqlite not having getColumns
+        // TODO implement tests for other DB types - mysql, sqlite for now
+        if (DB::connection()->getDriverName() === 'sqlite') {
+            $columns = DB::select("PRAGMA table_info({$table})");
+
+            $columns = array_map(function ($column) {
+                return [
+                    'name' => $column->name,
+                    'type_name' => $column->type,
+                    'nullable' => !$column->notnull,
+                ];
+            }, $columns);
+
+        }else{
+            // MySQL
+            $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
+        }
 
         $interface_name = class_basename($model);
         if (! empty($suffix)) {
@@ -176,10 +193,11 @@ class InterfaceGenerator extends Command
 
     private function mapTypes(string $column_type_name): string
     {
+        // TODO maybe map per DB Driver?
         return match ($column_type_name) {
             'tinyint' => 'boolean',
             'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
-            'smallint',  'mediumint', 'int', 'integer', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
+            'smallint',  'mediumint', 'int', 'integer', 'INTEGER', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
             'datetime', 'date', 'timestamp' => 'date',
             'blob' => 'unknown', // TODO conduct testing to narrow down type
             'geometry' => 'unknown', // TODO conduct testing to narrow down type
