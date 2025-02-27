@@ -22,7 +22,7 @@ class InterfaceGenerator extends Command
      *
      * @var string
      */
-    protected $signature = 'generate:interfaces {--M|mode=migrations : Mode to generate interfaces (migrations|fillables)} {--S|suffix=Interface : Add a suffix to generated interface names}';
+    protected $signature = 'generate:interfaces {--M|mode=migrations : Mode to generate interfaces (migrations|fillables)} {--S|suffix=Interface : Add a suffix to generated interface names} {--model= : Select the model to generate an interface for, default is all models}';
 
     /**
      * The console command description.
@@ -47,7 +47,9 @@ class InterfaceGenerator extends Command
 
         $suffix = $this->option('suffix');
 
-        $models = $this->getModels();
+        $modelSelection = $this->option('model');
+
+        $models = $this->getModels($modelSelection);
 
         $valid_model_names = [];
         foreach ($models as $model) {
@@ -82,10 +84,9 @@ class InterfaceGenerator extends Command
     /**
      * @throws ReflectionException
      */
-    private function getModels(): array
+    private function getModels(string $modelSelection): array
     {
         // Find all model within the project
-
         $models_path = app_path('Models');
 
         // remove . .. from results
@@ -103,6 +104,10 @@ class InterfaceGenerator extends Command
 
             // get file name only, strip .php
             $file_name_only = pathinfo($file, PATHINFO_FILENAME);
+
+            if (!empty($modelSelection) && $modelSelection !== $file_name_only) {
+                continue;
+            }
 
             // build model path
             $model_path = 'App\\Models\\'.$file_name_only;
