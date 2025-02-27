@@ -2,17 +2,15 @@
 
 namespace Mpstr24\InterfaceTyper\Tests;
 
-
 use PHPUnit\Framework\Attributes\CoversMethod;
 
 /**
  * @covers \Mpstr24\InterfaceTyper\Console\Commands\InterfaceGenerator::getInterfaceFromFillables
  */
-//#[CoversMethod('Mpstr24\Interfacetyper\Console\Commands\InterfaceGenerator','getInterfaceFromFillables')] FIXME
+// #[CoversMethod('Mpstr24\Interfacetyper\Console\Commands\InterfaceGenerator','getInterfaceFromFillables')] FIXME
 class InterfaceGeneratorTest extends TestCase
 {
-
-    public function testGeneratesCorrectTestUserInterfaceFromFillables()
+    public function test_generates_correct_test_user_interface_from_fillables()
     {
         $this->artisan('generate:interfaces', ['--mode' => 'fillables'])
             ->assertExitCode(0)
