@@ -105,7 +105,7 @@ class InterfaceGenerator extends Command
             // get file name only, strip .php
             $file_name_only = pathinfo($file, PATHINFO_FILENAME);
 
-            if (!empty($modelSelection) && $modelSelection !== $file_name_only) {
+            if (!empty($modelSelection) && strtolower($modelSelection) !== strtolower($file_name_only)) {
                 continue;
             }
 

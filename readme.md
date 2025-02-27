@@ -44,6 +44,13 @@ For example:
 php artisan generate:interfaces --model=User
 ```
 
+The selection is also case-insensitive. As such, the below command will return the same as the above.
+
+```bash
+php artisan generate:interfaces --model=user
+```
+
+
 ## Suffix
 
 You can change or remove the suffix using --suffix (-S).
