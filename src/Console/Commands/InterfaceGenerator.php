@@ -84,7 +84,7 @@ class InterfaceGenerator extends Command
     /**
      * @throws ReflectionException
      */
-    private function getModels(string $modelSelection): array
+    private function getModels(string|null $modelSelection): array
     {
         // Find all model within the project
         $models_path = app_path('Models');
