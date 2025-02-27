@@ -33,6 +33,7 @@ class InterfaceGenerator extends Command
 
     /**
      * Execute the console command.
+     *
      * @throws ReflectionException
      */
     public function handle(): int
@@ -40,6 +41,7 @@ class InterfaceGenerator extends Command
         $mode = $this->option('mode');
         if (! in_array($mode, ['migrations', 'fillables'], true)) {
             $this->error('Invalid generation mode, please use either "migrations" or "fillables".');
+
             return self::FAILURE;
         }
 
@@ -57,6 +59,7 @@ class InterfaceGenerator extends Command
             // check if the user has migrations table, if they haven't this command will do nothing so alert the user
             if (! Schema::hasTable('migrations')) {
                 $this->error('You have not ran any migrations, please run them first or use --mode=fillables');
+
                 return self::FAILURE;
             }
 
@@ -65,7 +68,7 @@ class InterfaceGenerator extends Command
                 $this->getInterfaceFromMigrations($model, $suffix, $valid_model_names);
             }
 
-        }else {
+        } else {
 
             foreach ($models as $model) {
                 $this->getInterfaceFromFillables($model, $suffix, $valid_model_names);
@@ -102,7 +105,7 @@ class InterfaceGenerator extends Command
             $file_name_only = pathinfo($file, PATHINFO_FILENAME);
 
             // build model path
-            $model_path = 'App\\Models\\' . $file_name_only;
+            $model_path = 'App\\Models\\'.$file_name_only;
 
             $model_reflection = new ReflectionClass($model_path);
 
@@ -112,14 +115,14 @@ class InterfaceGenerator extends Command
         return $models;
     }
 
-    private function getInterfaceFromFillables(Model $model, string|null $suffix, array $valid_model_names): void
+    private function getInterfaceFromFillables(Model $model, ?string $suffix, array $valid_model_names): void
     {
         $interface_name = class_basename($model);
-        if (!empty($suffix)) {
+        if (! empty($suffix)) {
             $interface_name .= $suffix;
         }
 
-        $model_interface = "export interface " . $interface_name . " { \n";
+        $model_interface = 'export interface '.$interface_name." { \n";
         foreach ($model->getFillable() as $fillable) {
             $model_interface .= "   $fillable: any;\n";
         }
@@ -131,7 +134,7 @@ class InterfaceGenerator extends Command
         $this->info($model_interface);
     }
 
-    private function getInterfaceFromMigrations(Model $model, string|null $suffix, array $valid_model_names): void
+    private function getInterfaceFromMigrations(Model $model, ?string $suffix, array $valid_model_names): void
     {
         // get the current table
         $table = $model->getTable();
@@ -140,17 +143,17 @@ class InterfaceGenerator extends Command
         $columns = DB::connection()->getSchemaBuilder()->getColumns($table);
 
         $interface_name = class_basename($model);
-        if (!empty($suffix)) {
+        if (! empty($suffix)) {
             $interface_name .= $suffix;
         }
 
-        $model_interface = "export interface " . $interface_name . " { \n";
+        $model_interface = 'export interface '.$interface_name." { \n";
 
         // parse returned columns
         foreach ($columns as $column) {
             $column_name = $column['name'];
             $type = $this->mapTypes($column['type_name']);
-            $column_nullable = !empty($column['nullable']) ? '?' : '';
+            $column_nullable = ! empty($column['nullable']) ? '?' : '';
 
             $model_interface .= "   $column_name$column_nullable: $type;\n";
 
@@ -191,12 +194,12 @@ class InterfaceGenerator extends Command
             $method_name = $method->getName();
             $singular_method_name = Str::singular($method_name);
 
-            if (!in_array($singular_method_name, $valid_model_names, true)) {
+            if (! in_array($singular_method_name, $valid_model_names, true)) {
                 continue;
             }
 
             // check the method works on the model, as we may have made a plural method singular
-            try{
+            try {
                 $relationship = $method->invoke($model);
                 // store the returned instance e.g. HasMany
                 $relationships[$method_name] = $relationship;
@@ -209,33 +212,33 @@ class InterfaceGenerator extends Command
         return $relationships;
     }
 
-    private function addRelationshipsToInterface(Model $model, $valid_model_names, string $suffix, string &$model_interface): void{
+    private function addRelationshipsToInterface(Model $model, $valid_model_names, string $suffix, string &$model_interface): void
+    {
         $model_relationships = $this->getRelationshipsFromMethods($model, $valid_model_names);
 
         foreach ($model_relationships as $method_name => $relationship) {
 
             // check that the method exists in the model
-            if (!method_exists($model, $method_name)) {
+            if (! method_exists($model, $method_name)) {
                 continue;
             }
 
             // check that getRelated() can run on the method
-            try{
+            try {
                 $related_method_instance = $model->{$method_name}();
 
-                if (!method_exists($related_method_instance, 'getRelated')) {
+                if (! method_exists($related_method_instance, 'getRelated')) {
                     continue;
                 }
 
                 $related_model = $model->{$method_name}()->getRelated();
-            }catch (Throwable $e){
+            } catch (Throwable $e) {
                 continue;
             }
 
-
             // get the related model
             $related_interface_name = class_basename($related_model);
-            if (!empty($suffix)) {
+            if (! empty($suffix)) {
                 $related_interface_name .= $suffix;
             }
 

@@ -10,7 +10,7 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
-            InterfaceTyperServiceProvider::class
+            InterfaceTyperServiceProvider::class,
         ];
     }
 
@@ -20,9 +20,9 @@ class TestCase extends Orchestra
 
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => '',
+            'prefix' => '',
         ]);
 
     }

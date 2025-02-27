@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(){
+    public function up()
+    {
         Schema::create('test_users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('first_name');
