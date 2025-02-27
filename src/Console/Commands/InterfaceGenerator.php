@@ -179,14 +179,14 @@ class InterfaceGenerator extends Command
         return match ($column_type_name) {
             'tinyint' => 'boolean',
             'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
-            'smallint',  'mediumint', 'int', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
+            'smallint',  'mediumint', 'int', 'integer', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
             'datetime', 'date', 'timestamp' => 'date',
             'blob' => 'unknown', // TODO conduct testing to narrow down type
             'geometry' => 'unknown', // TODO conduct testing to narrow down type
             'enum' => 'unknown', // TODO conduct testing to narrow down type
             'set' => 'unknown',// TODO conduct testing to narrow down type
             // if not matched return "unknown" type, update this as unknowns are found
-            default => 'unknown'
+            default => 'unknown' // Set to $column_type_name to help debug unknown types when they appear
         };
     }
 
