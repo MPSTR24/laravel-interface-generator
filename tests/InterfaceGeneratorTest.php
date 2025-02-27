@@ -2,7 +2,8 @@
 
 namespace Mpstr24\InterfaceTyper\Tests;
 
-use PHPUnit\Framework\Attributes\CoversMethod;
+use Illuminate\Support\Facades\Artisan;
+use Mpstr24\InterfaceTyper\Tests\Helpers\TestUtilities;
 
 /**
  * @covers \Mpstr24\InterfaceTyper\Console\Commands\InterfaceGenerator::getInterfaceFromFillables
@@ -10,10 +11,25 @@ use PHPUnit\Framework\Attributes\CoversMethod;
 // #[CoversMethod('Mpstr24\Interfacetyper\Console\Commands\InterfaceGenerator','getInterfaceFromFillables')] FIXME
 class InterfaceGeneratorTest extends TestCase
 {
-    public function test_generates_correct_test_user_interface_from_fillables()
+
+    /**
+     * @return void
+     */
+    public function test_generates_correct_test_user_interface_from_fillables(): void
     {
-        $this->artisan('generate:interfaces', ['--mode' => 'fillables'])
-            ->assertExitCode(0)
-            ->expectsOutputToContain("export interface TestUserInterface { \n   first_name: any;\n   last_name: any;\n   email: any;\n}\n");
+        Artisan::call('generate:interfaces', ['--mode' => 'fillables']);
+        $actualOutput = TestUtilities::interfaceOutputNormaliser(Artisan::output());
+
+        $expectedOutput = [
+            "export interface TestUserInterface {",
+            "first_name: any;",
+            "last_name: any;",
+            "email: any;",
+            "}"
+        ];
+
+        TestUtilities::interfaceLineCountMatcher($expectedOutput, $actualOutput, $this);
+
+        TestUtilities::interfaceLineMatcher($expectedOutput, $actualOutput, $this);
     }
 }
