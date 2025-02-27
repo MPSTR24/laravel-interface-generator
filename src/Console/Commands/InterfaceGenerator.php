@@ -22,7 +22,10 @@ class InterfaceGenerator extends Command
      *
      * @var string
      */
-    protected $signature = 'generate:interfaces {--M|mode=migrations : Mode to generate interfaces (migrations|fillables)} {--S|suffix=Interface : Add a suffix to generated interface names} {--model= : Select the model to generate an interface for, default is all models}';
+    protected $signature = 'generate:interfaces
+        {--M|mode=migrations : Mode to generate interfaces (migrations|fillables)}
+        {--S|suffix=Interface : Add a suffix to generated interface names}
+        {--model=all : Select the model to generate an interface for, default is all models}';
 
     /**
      * The console command description.
@@ -105,7 +108,7 @@ class InterfaceGenerator extends Command
             // get file name only, strip .php
             $file_name_only = pathinfo($file, PATHINFO_FILENAME);
 
-            if (!empty($modelSelection) && strtolower($modelSelection) !== strtolower($file_name_only)) {
+            if (!empty($modelSelection) && strtolower($modelSelection) !== "all" && strtolower($modelSelection) !== strtolower($file_name_only)) {
                 continue;
             }
 
