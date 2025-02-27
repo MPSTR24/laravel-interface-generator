@@ -3,6 +3,12 @@
     "description": "Laravel package to generate TypeScript interfaces.",
     "type": "package",
     "license": "MIT",
+    "homepage": "https://github.com/MPSTR24/laravel-interface-generator",
+    "keywords": [
+        "laravel",
+        "typescript",
+        "generator"
+    ],
     "scripts": {
         "format": "vendor/bin/pint",
         "test": "vendor/bin/pest",
@@ -19,6 +25,9 @@
             "providers": [
                 "Mpstr24\\InterfaceTyper\\InterfaceTyperServiceProvider"
             ]
+        },
+        "branch-alias": {
+            "dev-main": "1.0-dev"
         }
     },
     "authors": [
