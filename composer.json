@@ -1,5 +1,5 @@
 {
-    "name": "mpstr24/laravel-interface-typer",
+    "name": "mpstr24/laravel-interface-generator",
     "description": "Laravel package to generate TypeScript interfaces.",
     "type": "package",
     "license": "MIT",
