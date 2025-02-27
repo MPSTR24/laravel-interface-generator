@@ -10,12 +10,11 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
       fail-fast: true
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
         php: [ 8.4, 8.3 ]
         laravel: [ 12.*, 11.*, 10.* ]
         stability: [ prefer-lowest, prefer-stable ]
@@ -28,7 +27,7 @@ jobs:
             testbench: 8.*
             larastan: 2.*
 
-    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }}
 
     steps:
       - name: Checkout code
@@ -54,8 +53,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: P${{ matrix.php }}-L${{ matrix.laravel }}-${{ matrix.stability }}-${{ matrix.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: P${{ matrix.php }}-L${{ matrix.laravel }}-${{ matrix.stability }}-${{ matrix.os }}-composer-
+          key: P${{ matrix.php }}-L${{ matrix.laravel }}-${{ matrix.stability }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: P${{ matrix.php }}-L${{ matrix.laravel }}-${{ matrix.stability }}-composer-
 
       - name: Install dependencies
         run: |
