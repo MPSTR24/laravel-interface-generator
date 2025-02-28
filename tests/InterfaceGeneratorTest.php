@@ -51,4 +51,44 @@ class InterfaceGeneratorTest extends TestCase
 
         TestUtilities::interfaceLineMatcher($expectedOutput, $actualOutput, $this);
     }
+
+    public function test_generates_correct_test_post_interface_from_fillables(): void
+    {
+        $this->withoutMockingConsoleOutput();
+        Artisan::call('generate:interfaces', ['--mode' => 'fillables', '--model' => 'TestPost']);
+        $actualOutput = TestUtilities::interfaceOutputNormaliser(Artisan::output());
+
+        $expectedOutput = [
+            'export interface TestPostInterface {',
+            'title: any;',
+            'description: any;',
+            '}',
+        ];
+
+        TestUtilities::interfaceLineCountMatcher($expectedOutput, $actualOutput, $this);
+
+        TestUtilities::interfaceLineMatcher($expectedOutput, $actualOutput, $this);
+    }
+
+    public function test_generates_correct_test_post_interface_from_migrations(): void
+    {
+        $this->withoutMockingConsoleOutput();
+        Artisan::call('generate:interfaces', ['--mode' => 'migrations', '--model' => 'TestPost']);
+        $actualOutput = TestUtilities::interfaceOutputNormaliser(Artisan::output());
+
+        $expectedOutput = [
+            'export interface TestPostInterface {',
+            'id: number;',
+            'title: string;',
+            'description: string;',
+            'created_at?: date;',
+            'updated_at?: date;',
+            '}',
+        ];
+
+        TestUtilities::interfaceLineCountMatcher($expectedOutput, $actualOutput, $this);
+
+        TestUtilities::interfaceLineMatcher($expectedOutput, $actualOutput, $this);
+    }
+
 }
