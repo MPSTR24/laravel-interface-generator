@@ -25,7 +25,8 @@ class InterfaceGenerator extends Command
     protected $signature = 'generate:interfaces
         {--M|mode=migrations : Mode to generate interfaces (migrations|fillables)}
         {--S|suffix=Interface : Add a suffix to generated interface names}
-        {--model=all : Select the model to generate an interface for, default is all models}';
+        {--model=all : Select the model to generate an interface for, default is all models}
+        {--R|relationships=true : Enable following relationships (True|False)}';
 
     /**
      * The console command description.
@@ -52,10 +53,14 @@ class InterfaceGenerator extends Command
 
         $modelSelection = $this->option('model');
 
+        $relationships = filter_var($this->option('relationships'), FILTER_VALIDATE_BOOLEAN);
+
         $models = $this->getModels($modelSelection);
 
+        $relationship_models = $this->getModels('all');
+
         $valid_model_names = [];
-        foreach ($models as $model) {
+        foreach ($relationship_models as $model) {
             $valid_model_names[] = strtolower(class_basename($model));
         }
 
@@ -70,13 +75,23 @@ class InterfaceGenerator extends Command
 
             foreach ($models as $model) {
 
-                $this->getInterfaceFromMigrations($model, $suffix, $valid_model_names);
+                $this->getInterfaceFromMigrations(
+                    model: $model,
+                    suffix: $suffix,
+                    valid_model_names: $valid_model_names,
+                    relationships: $relationships
+                );
             }
 
         } else {
 
             foreach ($models as $model) {
-                $this->getInterfaceFromFillables($model, $suffix, $valid_model_names);
+                $this->getInterfaceFromFillables(
+                    model: $model,
+                    suffix: $suffix,
+                    valid_model_names: $valid_model_names,
+                    relationships: $relationships
+                );
             }
 
         }
@@ -123,7 +138,7 @@ class InterfaceGenerator extends Command
         return $models;
     }
 
-    private function getInterfaceFromFillables(Model $model, ?string $suffix, array $valid_model_names): void
+    private function getInterfaceFromFillables(Model $model, ?string $suffix, array $valid_model_names, bool $relationships): void
     {
         $interface_name = class_basename($model);
         if (! empty($suffix)) {
@@ -135,14 +150,16 @@ class InterfaceGenerator extends Command
             $model_interface .= "   $fillable: any;\n";
         }
 
-        $this->addRelationshipsToInterface($model, $valid_model_names, $suffix, $model_interface);
+        if ($relationships) {
+            $this->addRelationshipsToInterface($model, $valid_model_names, $suffix, $model_interface);
+        }
 
         $model_interface .= "}\n";
 
         $this->info($model_interface);
     }
 
-    private function getInterfaceFromMigrations(Model $model, ?string $suffix, array $valid_model_names): void
+    private function getInterfaceFromMigrations(Model $model, ?string $suffix, array $valid_model_names, bool $relationships): void
     {
         // get the current table
         $table = $model->getTable();
@@ -184,7 +201,9 @@ class InterfaceGenerator extends Command
 
         }
 
-        $this->addRelationshipsToInterface($model, $valid_model_names, $suffix, $model_interface);
+        if ($relationships) {
+            $this->addRelationshipsToInterface($model, $valid_model_names, $suffix, $model_interface);
+        }
 
         $model_interface .= "}\n";
 
@@ -219,6 +238,7 @@ class InterfaceGenerator extends Command
             // relationship methods will match model names in singular
             $method_name = $method->getName();
             $singular_method_name = Str::singular($method_name);
+            $singular_method_name = strtolower($singular_method_name);
 
             if (! in_array($singular_method_name, $valid_model_names, true)) {
                 continue;
