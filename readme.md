@@ -1,76 +1,101 @@
-# Laravel InterfaceTyper
 
-This is a Laravel package that aims to generate TypeScript interfaces based off the models with Laravel.
+# Laravel Interface Generator
 
-It can generate from either fillables or migrations currently, and also aims to automatically include relationships into
-the interfaces by looking for the appropriate methods in your models.
+This package is designed to automatically generate TypeScript interfaces from your Laravel models. It supports generating interfaces based on either model fillables or database migrations, it will also try to include relationships by analysing your model methods.
 
-Currently, this package has only been tested with MySQL.
+> **Note:** This package has been primarily tested with MySQL. SQLite and other drivers are a work in progress.
 
-# Installation
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/mpstr24/laravel-interface-generator/run-tests.yml?branch=main)
+![Packagist Version](https://img.shields.io/packagist/v/mpstr24/laravel-interface-generator)
+![Packagist Downloads](https://img.shields.io/packagist/dt/mpstr24/laravel-interface-generator)
 
-To install please run the following command.
+## Features
+
+- Interface Generation: Automatically generate TypeScript interfaces from Laravel
+    - Generates interfaces from your model's fillable attributes or from your model's database migration.
+- Relationship Detection: Automatically includes relationships in your interfaces.
+- Customisable Suffix: Ability to customise or remove a suffix to each interface.
+- Model Targeting: Ability to generate interfaces on all or specific models.
+## Installation
+
+Install the package via Composer:
 
 ```bash
 composer require mpstr24/laravel-interface-typer
 ```
 
-# Usage
 
-For simple usage, running the below will generate the interfaces using your migrations, it will also apply a suffix of "Interface" to each. 
+
+## Usage/Examples
+
+Basic usage.
+Run the following to generate interfaces from your migrations with the default suffix "Interface":
 
 ```bash
 php artisan generate:interfaces
 ```
 
-## Mode
+### Mode Options
+You can choose between generating interfaces from migrations or fillables using the --mode (or -M) option.
 
-You can toggle the mode of which to run, migrations or fillables by using --mode (-M).
-
+- Fillables Mode:
 ```bash
 php artisan generate:interfaces --mode=fillables
 ```
+
+- Migrations Mode:
 
 ```bash
 php artisan generate:interfaces --mode=migrations
 ```
 
-## Model
-You can also choose to generate an interface for a specific model only by using --model. By default, all models will be used.
+### Suffix Options
+Customise the suffix added to your generated interface names using the --suffix (or -S) option.
 
-For example:
-
-```bash
-php artisan generate:interfaces --model=User
-```
-
-The selection is also case-insensitive. As such, the below command will return the same as the above.
-
-```bash
-php artisan generate:interfaces --model=user
-```
-
-
-## Suffix
-
-You can change or remove the suffix using --suffix (-S).
-
+- Custom Suffix (default "Interface"):
 ```bash
 php artisan generate:interfaces --suffix=Interface
 ```
 
-For no suffix, please run.
-
+- No Suffix:
 ```bash
 php artisan generate:interfaces --suffix=
 ```
 
-# Roadmap
+### Model Selection
+To generate an interface for a specific model, please use the --model option. If not used or set to all, all models within the "app/Models" directory will be generated.
 
-- Better Model discovery
-- Better relationship discovery
-- Finalising unknown types within mapping
-- Adding of morphTo
-- Configuration file for wider and customisable default settings
-- Interface export options
-- Testing to be implemented
+- Specific Model
+```bash
+php artisan generate:interfaces --model=TestUser
+```
+
+- All Models
+
+```bash
+php artisan generate:interfaces --model=all
+```
+
+Or alternatively.
+
+```bash
+php artisan generate:interfaces
+```
+## Roadmap
+
+- [ ] Better Model discovery
+- [ ] Better relationship discovery
+- [ ] Finalising unknown types within mapping
+- [ ] Adding of morphTo
+- [ ] Configuration file for wider and customisable default settings
+- [ ] Interface export options
+- [x] Testing to be implemented
+- [ ] Testing to be improved
+- [ ] SQLite testing
+- [ ] Mapping separation for separate DB drivers
+
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
