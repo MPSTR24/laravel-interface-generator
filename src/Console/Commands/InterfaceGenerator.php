@@ -246,15 +246,6 @@ class InterfaceGenerator extends Command
                 continue;
             }
 
-            if (!empty($valid_model_names)){
-                $singular_method_name = strtolower(Str::singular($method->getName()));
-                if (! in_array($singular_method_name, $valid_model_names, true)) {
-                    continue;
-                }
-            }
-
-
-
             // check the method works on the model, as we may have made a plural method singular
             try {
                 $relationship = $method->invoke($model);
