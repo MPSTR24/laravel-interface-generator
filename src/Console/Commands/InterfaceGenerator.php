@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -293,11 +294,44 @@ class InterfaceGenerator extends Command
                 $related_interface_name .= $suffix;
             }
 
-            if ($relationship instanceof HasMany || $relationship instanceof BelongsToMany || $relationship instanceof MorphMany) {
+            // polymorphic relationships
+            if ($relationship instanceof MorphTo){
+                // perform a look up of models with the method relating to the relationship
+                $found_models = $this->findModelsContainingPolymorphicRelationship(class_basename($model));
+                dd($found_models);
+                $union_types = [];
+                foreach ($found_models as $found_model) {
+                    $model_name = class_basename($found_model);
+                    if (!empty($suffix)) {
+                        $model_name .= $suffix;
+                    }
+                    $union_types[] = $model_name;
+                }
+                $union_types = implode(' | ', array_unique($union_types));
+                $model_interface .= "   $method_name?: $union_types;\n";
+
+            }
+            else if ($relationship instanceof HasMany || $relationship instanceof BelongsToMany || $relationship instanceof MorphMany) {
                 $model_interface .= "   $method_name?: {$related_interface_name}[];\n";
             } else {
                 $model_interface .= "   $method_name?: $related_interface_name;\n";
             }
         }
+    }
+
+    public function findModelsContainingPolymorphicRelationship($polymorphic_model_name){
+        $models = $this->getModels('all');
+
+        $found_models = [];
+
+        foreach ($models as $model) {
+            $reflection = new ReflectionClass($model);
+            // Check if the method exists on the model
+            if ($reflection->hasMethod($polymorphic_model_name)) {
+                $found_models[] = $model;
+            }
+        }
+
+        return $found_models;
     }
 }
