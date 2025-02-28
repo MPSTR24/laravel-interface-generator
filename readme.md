@@ -14,6 +14,7 @@ This package is designed to automatically generate TypeScript interfaces from yo
 - Interface Generation: Automatically generate TypeScript interfaces from Laravel
     - Generates interfaces from your model's fillable attributes or from your model's database migration.
 - Relationship Detection: Automatically includes relationships in your interfaces.
+  - With the ability to disable this feature. 
 - Customisable Suffix: Ability to customise or remove a suffix to each interface.
 - Model Targeting: Ability to generate interfaces on all or specific models.
 ## Installation
@@ -81,6 +82,27 @@ Or alternatively.
 ```bash
 php artisan generate:interfaces
 ```
+
+### Relationship Toggling
+You may not want to always generate relationships in your interfaces, to turn this off please use --relationships=False.
+
+- Relationships enabled (leave blank or set "True")
+```bash
+php artisan generate:interfaces --relationships=True
+```
+
+- Relationships disabled
+
+```bash
+php artisan generate:interfaces --relationships=False
+```
+
+Or alternatively.
+
+```bash
+php artisan generate:interfaces
+```
+
 ## Roadmap
 
 - [ ] Better Model discovery
