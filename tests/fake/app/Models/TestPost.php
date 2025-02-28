@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class TestPost extends Model
 {
@@ -15,5 +16,10 @@ class TestPost extends Model
     public function testUser(): BelongsTo
     {
         return $this->belongsTo(TestUser::class);
+    }
+
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(TestComment::class, 'commentable');
     }
 }
