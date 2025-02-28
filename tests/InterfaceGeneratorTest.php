@@ -134,5 +134,4 @@ class InterfaceGeneratorTest extends TestCase
 
         TestUtilities::interfaceLineMatcher($expectedOutput, $actualOutput, $this);
     }
-
 }
