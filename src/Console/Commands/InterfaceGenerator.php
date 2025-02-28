@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -235,20 +236,33 @@ class InterfaceGenerator extends Command
         $reflection = new ReflectionClass($model);
         foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
 
-            // relationship methods will match model names in singular
-            $method_name = $method->getName();
-            $singular_method_name = Str::singular($method_name);
-            $singular_method_name = strtolower($singular_method_name);
-
-            if (! in_array($singular_method_name, $valid_model_names, true)) {
+            // relationship methods will have no parameters
+            if ($method->getNumberOfParameters() > 0){
                 continue;
             }
+
+            // only get methods on the actual user's model, not the base class
+            if ($method->getDeclaringClass()->getName() !== get_class($model)){
+                continue;
+            }
+
+            if (!empty($valid_model_names)){
+                $singular_method_name = strtolower(Str::singular($method->getName()));
+                if (! in_array($singular_method_name, $valid_model_names, true)) {
+                    continue;
+                }
+            }
+
+
 
             // check the method works on the model, as we may have made a plural method singular
             try {
                 $relationship = $method->invoke($model);
-                // store the returned instance e.g. HasMany
-                $relationships[$method_name] = $relationship;
+
+                if ($relationship instanceof Relation) {
+                    $relationships[$method->getName()] = $relationship;
+                }
+
             } catch (\Exception $e) {
                 continue;
             }
