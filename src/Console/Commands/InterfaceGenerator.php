@@ -126,7 +126,7 @@ class InterfaceGenerator extends Command
             $model_path = 'App\\Models\\'.$file_name_only;
 
             // check class exists
-            if (!class_exists($model_path)) {
+            if (! class_exists($model_path)) {
                 continue;
             }
 
@@ -135,7 +135,7 @@ class InterfaceGenerator extends Command
             $model_instance = $model_reflection->newInstance();
 
             // ensure it is a model instance
-            if (!$model_instance instanceof Model) {
+            if (! $model_instance instanceof Model) {
                 continue;
             }
 
@@ -145,6 +145,9 @@ class InterfaceGenerator extends Command
         return $models;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function getInterfaceFromFillables(Model $model, ?string $suffix, bool $relationships): void
     {
         $interface_name = class_basename($model);
@@ -166,6 +169,9 @@ class InterfaceGenerator extends Command
         $this->info($model_interface);
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function getInterfaceFromMigrations(Model $model, ?string $suffix, bool $relationships): void
     {
         // get the current table
@@ -272,6 +278,9 @@ class InterfaceGenerator extends Command
         return $relationships;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     private function addRelationshipsToInterface(Model $model, ?string $suffix, string &$model_interface): void
     {
         $model_relationships = $this->getRelationshipsFromMethods($model);
@@ -349,12 +358,11 @@ class InterfaceGenerator extends Command
     }
 
     /**
-     * @param array<mixed>|bool|string|null $input
-     * @return string|null
+     * @param  array<mixed>|bool|string|null  $input
      */
-    private function normaliseUserInput(array|bool|string|null $input): string|null
+    private function normaliseUserInput(array|bool|string|null $input): ?string
     {
-        if (is_array($input)){
+        if (is_array($input)) {
             $input = $input[0] ?? null;
         }
 
@@ -362,6 +370,6 @@ class InterfaceGenerator extends Command
             $input = null;
         }
 
-        return $input;
+        return is_string($input) ? $input : null;
     }
 }
