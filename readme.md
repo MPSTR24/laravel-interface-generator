@@ -128,6 +128,12 @@ php artisan generate:interfaces
   - [ ] MorphOne
   - [ ] MorphToMany
   - [ ] MorphedByMany
+- [ ] Larastan goals
+  - [x] 5
+  - [ ] 6
+  - [ ] 7
+  - [ ] 8
+  - [ ] 9
 
 
 ## License
