@@ -219,7 +219,7 @@ class InterfaceGenerator extends Command
             'tinyint' => 'boolean',
             'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
             'smallint',  'mediumint', 'int', 'integer', 'INTEGER', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
-            'datetime', 'date', 'timestamp' => 'date',
+            'datetime', 'date', 'timestamp' => 'Date',
             'blob' => 'unknown', // TODO conduct testing to narrow down type
             'geometry' => 'unknown', // TODO conduct testing to narrow down type
             'enum' => 'unknown', // TODO conduct testing to narrow down type
@@ -298,7 +298,7 @@ class InterfaceGenerator extends Command
             if ($relationship instanceof MorphTo){
                 // perform a look up of models with the method relating to the relationship
                 $found_models = $this->findModelsContainingPolymorphicRelationship(class_basename($model));
-                dd($found_models);
+
                 $union_types = [];
                 foreach ($found_models as $found_model) {
                     $model_name = class_basename($found_model);
@@ -327,7 +327,7 @@ class InterfaceGenerator extends Command
         foreach ($models as $model) {
             $reflection = new ReflectionClass($model);
             // Check if the method exists on the model
-            if ($reflection->hasMethod($polymorphic_model_name)) {
+            if ($reflection->hasMethod(Str::plural($polymorphic_model_name))) {
                 $found_models[] = $model;
             }
         }
