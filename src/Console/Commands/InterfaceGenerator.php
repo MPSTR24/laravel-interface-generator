@@ -39,7 +39,7 @@ class InterfaceGenerator extends Command
 
     /**
      * Execute the console command.
-     * @return int
+     *
      * @throws ReflectionException
      */
     public function handle(): int
@@ -93,7 +93,6 @@ class InterfaceGenerator extends Command
     }
 
     /**
-     * @param string|null $model_selection
      * @return array<Model>
      *
      * @throws ReflectionException
@@ -127,7 +126,7 @@ class InterfaceGenerator extends Command
             $model_path = 'App\\Models\\'.$file_name_only;
 
             // check class exists
-            if (!class_exists($model_path)) {
+            if (! class_exists($model_path)) {
                 continue;
             }
 
@@ -136,7 +135,7 @@ class InterfaceGenerator extends Command
             $model_instance = $model_reflection->newInstance();
 
             // ensure it is a model instance
-            if (!$model_instance instanceof Model) {
+            if (! $model_instance instanceof Model) {
                 continue;
             }
 
@@ -147,10 +146,6 @@ class InterfaceGenerator extends Command
     }
 
     /**
-     * @param Model $model
-     * @param string|null $suffix
-     * @param bool $relationships
-     * @return void
      * @throws ReflectionException
      */
     private function getInterfaceFromFillables(Model $model, ?string $suffix, bool $relationships): void
@@ -175,10 +170,6 @@ class InterfaceGenerator extends Command
     }
 
     /**
-     * @param Model $model
-     * @param string|null $suffix
-     * @param bool $relationships
-     * @return void
      * @throws ReflectionException
      */
     private function getInterfaceFromMigrations(Model $model, ?string $suffix, bool $relationships): void
@@ -232,10 +223,6 @@ class InterfaceGenerator extends Command
         $this->info($model_interface);
     }
 
-    /**
-     * @param string $column_type_name
-     * @return string
-     */
     private function mapTypes(string $column_type_name): string
     {
         // TODO maybe map per DB Driver?
@@ -254,7 +241,6 @@ class InterfaceGenerator extends Command
     }
 
     /**
-     * @param Model $model
      * @return array<string, Relation<Model, Model, mixed>>
      */
     private function getRelationshipsFromMethods(Model $model): array
@@ -293,10 +279,6 @@ class InterfaceGenerator extends Command
     }
 
     /**
-     * @param Model $model
-     * @param string|null $suffix
-     * @param string $model_interface
-     * @return void
      * @throws ReflectionException
      */
     private function addRelationshipsToInterface(Model $model, ?string $suffix, string &$model_interface): void
@@ -354,7 +336,6 @@ class InterfaceGenerator extends Command
     }
 
     /**
-     * @param string $polymorphic_model_name
      * @return array<Model>
      *
      * @throws ReflectionException
@@ -377,12 +358,11 @@ class InterfaceGenerator extends Command
     }
 
     /**
-     * @param array<mixed>|bool|string|null $input
-     * @return string|null
+     * @param  array<mixed>|bool|string|null  $input
      */
-    private function normaliseUserInput(array|bool|string|null $input): string|null
+    private function normaliseUserInput(array|bool|string|null $input): ?string
     {
-        if (is_array($input)){
+        if (is_array($input)) {
             $input = $input[0] ?? null;
         }
 
