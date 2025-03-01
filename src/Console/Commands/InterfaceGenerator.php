@@ -59,13 +59,6 @@ class InterfaceGenerator extends Command
 
         $models = $this->getModels($modelSelection);
 
-        $relationship_models = $this->getModels('all');
-
-        $valid_model_names = [];
-        foreach ($relationship_models as $model) {
-            $valid_model_names[] = strtolower(class_basename($model));
-        }
-
         if ($mode === 'migrations') {
 
             // check if the user has migrations table, if they haven't this command will do nothing so alert the user
@@ -80,7 +73,6 @@ class InterfaceGenerator extends Command
                 $this->getInterfaceFromMigrations(
                     model: $model,
                     suffix: $suffix,
-                    valid_model_names: $valid_model_names,
                     relationships: $relationships
                 );
             }
@@ -91,7 +83,6 @@ class InterfaceGenerator extends Command
                 $this->getInterfaceFromFillables(
                     model: $model,
                     suffix: $suffix,
-                    valid_model_names: $valid_model_names,
                     relationships: $relationships
                 );
             }
@@ -102,6 +93,8 @@ class InterfaceGenerator extends Command
     }
 
     /**
+     * @return Model[]
+     *
      * @throws ReflectionException
      */
     private function getModels(?string $modelSelection): array
@@ -140,7 +133,7 @@ class InterfaceGenerator extends Command
         return $models;
     }
 
-    private function getInterfaceFromFillables(Model $model, ?string $suffix, array $valid_model_names, bool $relationships): void
+    private function getInterfaceFromFillables(Model $model, ?string $suffix, bool $relationships): void
     {
         $interface_name = class_basename($model);
         if (! empty($suffix)) {
@@ -153,7 +146,7 @@ class InterfaceGenerator extends Command
         }
 
         if ($relationships) {
-            $this->addRelationshipsToInterface($model, $valid_model_names, $suffix, $model_interface);
+            $this->addRelationshipsToInterface($model, $suffix, $model_interface);
         }
 
         $model_interface .= "}\n";
@@ -161,7 +154,7 @@ class InterfaceGenerator extends Command
         $this->info($model_interface);
     }
 
-    private function getInterfaceFromMigrations(Model $model, ?string $suffix, array $valid_model_names, bool $relationships): void
+    private function getInterfaceFromMigrations(Model $model, ?string $suffix, bool $relationships): void
     {
         // get the current table
         $table = $model->getTable();
@@ -204,7 +197,7 @@ class InterfaceGenerator extends Command
         }
 
         if ($relationships) {
-            $this->addRelationshipsToInterface($model, $valid_model_names, $suffix, $model_interface);
+            $this->addRelationshipsToInterface($model, $suffix, $model_interface);
         }
 
         $model_interface .= "}\n";
@@ -229,7 +222,10 @@ class InterfaceGenerator extends Command
         };
     }
 
-    private function getRelationshipsFromMethods(Model $model, array $valid_model_names): array
+    /**
+     * @return array<string, Relation<Model, Model, mixed>>
+     */
+    private function getRelationshipsFromMethods(Model $model): array
     {
         $relationships = [];
         // relationships within models are going to be public functions whose names match other models
@@ -264,9 +260,9 @@ class InterfaceGenerator extends Command
         return $relationships;
     }
 
-    private function addRelationshipsToInterface(Model $model, $valid_model_names, string $suffix, string &$model_interface): void
+    private function addRelationshipsToInterface(Model $model, string $suffix, string &$model_interface): void
     {
-        $model_relationships = $this->getRelationshipsFromMethods($model, $valid_model_names);
+        $model_relationships = $this->getRelationshipsFromMethods($model);
 
         foreach ($model_relationships as $method_name => $relationship) {
 
@@ -318,7 +314,12 @@ class InterfaceGenerator extends Command
         }
     }
 
-    public function findModelsContainingPolymorphicRelationship($polymorphic_model_name)
+    /**
+     * @return array<Model>
+     *
+     * @throws ReflectionException
+     */
+    public function findModelsContainingPolymorphicRelationship(string $polymorphic_model_name)
     {
         $models = $this->getModels('all');
 
