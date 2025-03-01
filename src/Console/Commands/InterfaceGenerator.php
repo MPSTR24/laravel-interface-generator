@@ -51,13 +51,13 @@ class InterfaceGenerator extends Command
             return self::FAILURE;
         }
 
-        $suffix = $this->option('suffix');
+        $suffix = $this->normaliseUserInput($this->option('suffix'));
 
-        $modelSelection = $this->option('model');
+        $model_selection = $this->normaliseUserInput($this->option('model'));
 
         $relationships = filter_var($this->option('relationships'), FILTER_VALIDATE_BOOLEAN);
 
-        $models = $this->getModels($modelSelection);
+        $models = $this->getModels($model_selection);
 
         if ($mode === 'migrations') {
 
@@ -93,11 +93,11 @@ class InterfaceGenerator extends Command
     }
 
     /**
-     * @return Model[]
+     * @return array<Model>
      *
      * @throws ReflectionException
      */
-    private function getModels(?string $modelSelection): array
+    private function getModels(?string $model_selection): array
     {
         // Find all model within the project
         $models_path = app_path('Models');
@@ -118,16 +118,28 @@ class InterfaceGenerator extends Command
             // get file name only, strip .php
             $file_name_only = pathinfo($file, PATHINFO_FILENAME);
 
-            if (! empty($modelSelection) && strtolower($modelSelection) !== 'all' && strtolower($modelSelection) !== strtolower($file_name_only)) {
+            if (! empty($model_selection) && strtolower($model_selection) !== 'all' && strtolower($model_selection) !== strtolower($file_name_only)) {
                 continue;
             }
 
             // build model path
             $model_path = 'App\\Models\\'.$file_name_only;
 
+            // check class exists
+            if (!class_exists($model_path)) {
+                continue;
+            }
+
             $model_reflection = new ReflectionClass($model_path);
 
-            $models[] = $model_reflection->newInstance();
+            $model_instance = $model_reflection->newInstance();
+
+            // ensure it is a model instance
+            if (!$model_instance instanceof Model) {
+                continue;
+            }
+
+            $models[] = $model_instance;
         }
 
         return $models;
@@ -334,5 +346,22 @@ class InterfaceGenerator extends Command
         }
 
         return $found_models;
+    }
+
+    /**
+     * @param array<mixed>|bool|string|null $input
+     * @return string|null
+     */
+    private function normaliseUserInput(array|bool|string|null $input): string|null
+    {
+        if (is_array($input)){
+            $input = $input[0] ?? null;
+        }
+
+        if (is_bool($input)) {
+            $input = null;
+        }
+
+        return $input;
     }
 }
