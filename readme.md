@@ -130,7 +130,7 @@ php artisan generate:interfaces
   - [ ] MorphedByMany
 - [ ] Larastan goals
   - [x] 5
-  - [ ] 6
+  - [x] 6
   - [ ] 7
   - [ ] 8
   - [ ] 9
