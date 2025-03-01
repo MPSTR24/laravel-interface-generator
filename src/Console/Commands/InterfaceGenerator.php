@@ -272,7 +272,7 @@ class InterfaceGenerator extends Command
         return $relationships;
     }
 
-    private function addRelationshipsToInterface(Model $model, string $suffix, string &$model_interface): void
+    private function addRelationshipsToInterface(Model $model, ?string $suffix, string &$model_interface): void
     {
         $model_relationships = $this->getRelationshipsFromMethods($model);
 
