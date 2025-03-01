@@ -39,7 +39,7 @@ class InterfaceGenerator extends Command
 
     /**
      * Execute the console command.
-     *
+     * @return int
      * @throws ReflectionException
      */
     public function handle(): int
@@ -93,6 +93,7 @@ class InterfaceGenerator extends Command
     }
 
     /**
+     * @param string|null $model_selection
      * @return array<Model>
      *
      * @throws ReflectionException
@@ -145,6 +146,13 @@ class InterfaceGenerator extends Command
         return $models;
     }
 
+    /**
+     * @param Model $model
+     * @param string|null $suffix
+     * @param bool $relationships
+     * @return void
+     * @throws ReflectionException
+     */
     private function getInterfaceFromFillables(Model $model, ?string $suffix, bool $relationships): void
     {
         $interface_name = class_basename($model);
@@ -166,6 +174,13 @@ class InterfaceGenerator extends Command
         $this->info($model_interface);
     }
 
+    /**
+     * @param Model $model
+     * @param string|null $suffix
+     * @param bool $relationships
+     * @return void
+     * @throws ReflectionException
+     */
     private function getInterfaceFromMigrations(Model $model, ?string $suffix, bool $relationships): void
     {
         // get the current table
@@ -217,6 +232,10 @@ class InterfaceGenerator extends Command
         $this->info($model_interface);
     }
 
+    /**
+     * @param string $column_type_name
+     * @return string
+     */
     private function mapTypes(string $column_type_name): string
     {
         // TODO maybe map per DB Driver?
@@ -235,6 +254,7 @@ class InterfaceGenerator extends Command
     }
 
     /**
+     * @param Model $model
      * @return array<string, Relation<Model, Model, mixed>>
      */
     private function getRelationshipsFromMethods(Model $model): array
@@ -272,6 +292,13 @@ class InterfaceGenerator extends Command
         return $relationships;
     }
 
+    /**
+     * @param Model $model
+     * @param string|null $suffix
+     * @param string $model_interface
+     * @return void
+     * @throws ReflectionException
+     */
     private function addRelationshipsToInterface(Model $model, ?string $suffix, string &$model_interface): void
     {
         $model_relationships = $this->getRelationshipsFromMethods($model);
@@ -327,6 +354,7 @@ class InterfaceGenerator extends Command
     }
 
     /**
+     * @param string $polymorphic_model_name
      * @return array<Model>
      *
      * @throws ReflectionException
@@ -362,6 +390,6 @@ class InterfaceGenerator extends Command
             $input = null;
         }
 
-        return $input;
+        return is_string($input) ? $input : null;
     }
 }

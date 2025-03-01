@@ -133,7 +133,7 @@ php artisan generate:interfaces
   - [x] 6
   - [x] 7
   - [x] 8
-  - [ ] 9
+  - [x] 9
 
 
 ## License
