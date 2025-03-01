@@ -217,7 +217,7 @@ class InterfaceGenerator extends Command
         // TODO maybe map per DB Driver?
         return match ($column_type_name) {
             'tinyint' => 'boolean',
-            'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
+            'TEXT', 'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
             'smallint',  'mediumint', 'int', 'integer', 'INTEGER', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
             'datetime', 'date', 'timestamp' => 'Date',
             'blob' => 'unknown', // TODO conduct testing to narrow down type
@@ -331,7 +331,6 @@ class InterfaceGenerator extends Command
                 $found_models[] = $model;
             }
         }
-
         return $found_models;
     }
 }

@@ -42,8 +42,8 @@ class InterfaceGeneratorTest extends TestCase
             'first_name: string;',
             'last_name: string;',
             'email: string;',
-            'created_at?: date;',
-            'updated_at?: date;',
+            'created_at?: Date;',
+            'updated_at?: Date;',
             '}',
         ];
 
@@ -82,8 +82,8 @@ class InterfaceGeneratorTest extends TestCase
             'title: string;',
             'description: string;',
             'user_id: number;',
-            'created_at?: date;',
-            'updated_at?: date;',
+            'created_at?: Date;',
+            'updated_at?: Date;',
             '}',
         ];
 
@@ -104,6 +104,7 @@ class InterfaceGeneratorTest extends TestCase
             'last_name: any;',
             'email: any;',
             'testPosts?: TestPostInterface[];',
+            'testComments?: TestCommentInterface[];',
             '}',
         ];
 
@@ -124,9 +125,10 @@ class InterfaceGeneratorTest extends TestCase
             'first_name: string;',
             'last_name: string;',
             'email: string;',
-            'created_at?: date;',
-            'updated_at?: date;',
+            'created_at?: Date;',
+            'updated_at?: Date;',
             'testPosts?: TestPostInterface[];',
+            'testComments?: TestCommentInterface[];',
             '}',
         ];
 
@@ -146,6 +148,7 @@ class InterfaceGeneratorTest extends TestCase
             'title: any;',
             'description: any;',
             'testUser?: TestUserInterface;',
+            'testComments?: TestCommentInterface[];',
             '}',
         ];
 
@@ -166,9 +169,33 @@ class InterfaceGeneratorTest extends TestCase
             'title: string;',
             'description: string;',
             'user_id: number;',
-            'created_at?: date;',
-            'updated_at?: date;',
+            'created_at?: Date;',
+            'updated_at?: Date;',
             'testUser?: TestUserInterface;',
+            'testComments?: TestCommentInterface[];',
+            '}',
+        ];
+
+        TestUtilities::interfaceLineCountMatcher($expectedOutput, $actualOutput, $this);
+
+        TestUtilities::interfaceLineMatcher($expectedOutput, $actualOutput, $this);
+    }
+
+    public function test_generates_correct_commentable_morph_to_relationship_from_migrations(): void
+    {
+        $this->withoutMockingConsoleOutput();
+        Artisan::call('generate:interfaces', ['--mode' => 'migrations', '--model' => 'TestComment', '--relationships' => 'True']);
+        $actualOutput = TestUtilities::interfaceOutputNormaliser(Artisan::output());
+
+        $expectedOutput = [
+            'export interface TestCommentInterface {',
+            'id: number;',
+            'body: string;',
+            'commentable_type: string;',
+            'commentable_id: number;',
+            'created_at?: Date;',
+            'updated_at?: Date;',
+            'testCommentable?: TestPostInterface | TestUserInterface;',
             '}',
         ];
 

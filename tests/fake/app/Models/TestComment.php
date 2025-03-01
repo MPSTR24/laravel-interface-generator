@@ -11,7 +11,7 @@ class TestComment extends Model
         'body',
     ];
 
-    public function commentable(): MorphTo
+    public function testCommentable(): MorphTo
     {
         return $this->morphTo();
     }
