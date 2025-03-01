@@ -14,7 +14,14 @@ This package is designed to automatically generate TypeScript interfaces from yo
 - Interface Generation: Automatically generate TypeScript interfaces from Laravel
     - Generates interfaces from your model's fillable attributes or from your model's database migration.
 - Relationship Detection: Automatically includes relationships in your interfaces.
-  - With the ability to disable this feature. 
+  - With the ability to disable this feature.
+  - Currently working with:
+    - [x] HasOne
+    - [x] HasMany
+    - [x] BelongsTo
+    - [x] BelongsToMany
+    - [x] MorphMany
+    - [x] MorphTo
 - Customisable Suffix: Ability to customise or remove a suffix to each interface.
 - Model Targeting: Ability to generate interfaces on all or specific models.
 ## Installation
@@ -108,13 +115,25 @@ php artisan generate:interfaces
 - [ ] Better Model discovery
 - [ ] Better relationship discovery
 - [ ] Finalising unknown types within mapping
-- [ ] Adding of morphTo
+- [x] Adding of morphTo
 - [ ] Configuration file for wider and customisable default settings
 - [ ] Interface export options
 - [x] Testing to be implemented
-- [ ] Testing to be improved
+- [x] Testing to be improved
 - [ ] SQLite testing
 - [ ] Mapping separation for separate DB drivers
+- [ ] Finish remaining relationship types
+  - [ ] HasOneThrough
+  - [ ] HasManyThrough
+  - [ ] MorphOne
+  - [ ] MorphToMany
+  - [ ] MorphedByMany
+- [ ] Larastan goals
+  - [x] 5
+  - [ ] 6
+  - [ ] 7
+  - [ ] 8
+  - [ ] 9
 
 
 ## License

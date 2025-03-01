@@ -19,7 +19,7 @@ class TestUser extends Model
         return $this->hasMany(TestPost::class);
     }
 
-    public function comments(): MorphMany
+    public function testComments(): MorphMany
     {
         return $this->morphMany(TestComment::class, 'commentable');
     }

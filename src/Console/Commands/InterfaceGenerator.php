@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -215,9 +217,9 @@ class InterfaceGenerator extends Command
         // TODO maybe map per DB Driver?
         return match ($column_type_name) {
             'tinyint' => 'boolean',
-            'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
+            'TEXT', 'char', 'string', 'text', 'varchar', 'tinytext', 'mediumtext', 'longtext', 'time', 'json' => 'string',
             'smallint',  'mediumint', 'int', 'integer', 'INTEGER', 'bigint', 'float', 'decimal', 'double', 'year' => 'number',
-            'datetime', 'date', 'timestamp' => 'date',
+            'datetime', 'date', 'timestamp' => 'Date',
             'blob' => 'unknown', // TODO conduct testing to narrow down type
             'geometry' => 'unknown', // TODO conduct testing to narrow down type
             'enum' => 'unknown', // TODO conduct testing to narrow down type
@@ -235,20 +237,24 @@ class InterfaceGenerator extends Command
         $reflection = new ReflectionClass($model);
         foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
 
-            // relationship methods will match model names in singular
-            $method_name = $method->getName();
-            $singular_method_name = Str::singular($method_name);
-            $singular_method_name = strtolower($singular_method_name);
+            // relationship methods will have no parameters
+            if ($method->getNumberOfParameters() > 0) {
+                continue;
+            }
 
-            if (! in_array($singular_method_name, $valid_model_names, true)) {
+            // only get methods on the actual user's model, not the base class
+            if ($method->getDeclaringClass()->getName() !== get_class($model)) {
                 continue;
             }
 
             // check the method works on the model, as we may have made a plural method singular
             try {
                 $relationship = $method->invoke($model);
-                // store the returned instance e.g. HasMany
-                $relationships[$method_name] = $relationship;
+
+                if ($relationship instanceof Relation) {
+                    $relationships[$method->getName()] = $relationship;
+                }
+
             } catch (\Exception $e) {
                 continue;
             }
@@ -288,11 +294,44 @@ class InterfaceGenerator extends Command
                 $related_interface_name .= $suffix;
             }
 
-            if ($relationship instanceof HasMany || $relationship instanceof BelongsToMany || $relationship instanceof MorphMany) {
+            // polymorphic relationships
+            if ($relationship instanceof MorphTo) {
+                // perform a look up of models with the method relating to the relationship
+                $found_models = $this->findModelsContainingPolymorphicRelationship(class_basename($model));
+
+                $union_types = [];
+                foreach ($found_models as $found_model) {
+                    $model_name = class_basename($found_model);
+                    if (! empty($suffix)) {
+                        $model_name .= $suffix;
+                    }
+                    $union_types[] = $model_name;
+                }
+                $union_types = implode(' | ', array_unique($union_types));
+                $model_interface .= "   $method_name?: $union_types;\n";
+
+            } elseif ($relationship instanceof HasMany || $relationship instanceof BelongsToMany || $relationship instanceof MorphMany) {
                 $model_interface .= "   $method_name?: {$related_interface_name}[];\n";
             } else {
                 $model_interface .= "   $method_name?: $related_interface_name;\n";
             }
         }
+    }
+
+    public function findModelsContainingPolymorphicRelationship($polymorphic_model_name)
+    {
+        $models = $this->getModels('all');
+
+        $found_models = [];
+
+        foreach ($models as $model) {
+            $reflection = new ReflectionClass($model);
+            // Check if the method exists on the model
+            if ($reflection->hasMethod(Str::plural($polymorphic_model_name))) {
+                $found_models[] = $model;
+            }
+        }
+
+        return $found_models;
     }
 }

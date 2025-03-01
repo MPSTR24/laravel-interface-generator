@@ -18,7 +18,7 @@ class TestPost extends Model
         return $this->belongsTo(TestUser::class);
     }
 
-    public function comments(): MorphMany
+    public function testComments(): MorphMany
     {
         return $this->morphMany(TestComment::class, 'commentable');
     }
