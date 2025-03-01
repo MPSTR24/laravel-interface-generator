@@ -132,7 +132,7 @@ php artisan generate:interfaces
   - [x] 5
   - [x] 6
   - [x] 7
-  - [ ] 8
+  - [x] 8
   - [ ] 9
 
 
