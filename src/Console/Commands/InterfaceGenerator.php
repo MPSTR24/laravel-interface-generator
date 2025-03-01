@@ -238,12 +238,12 @@ class InterfaceGenerator extends Command
         foreach ($reflection->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
 
             // relationship methods will have no parameters
-            if ($method->getNumberOfParameters() > 0){
+            if ($method->getNumberOfParameters() > 0) {
                 continue;
             }
 
             // only get methods on the actual user's model, not the base class
-            if ($method->getDeclaringClass()->getName() !== get_class($model)){
+            if ($method->getDeclaringClass()->getName() !== get_class($model)) {
                 continue;
             }
 
@@ -295,14 +295,14 @@ class InterfaceGenerator extends Command
             }
 
             // polymorphic relationships
-            if ($relationship instanceof MorphTo){
+            if ($relationship instanceof MorphTo) {
                 // perform a look up of models with the method relating to the relationship
                 $found_models = $this->findModelsContainingPolymorphicRelationship(class_basename($model));
 
                 $union_types = [];
                 foreach ($found_models as $found_model) {
                     $model_name = class_basename($found_model);
-                    if (!empty($suffix)) {
+                    if (! empty($suffix)) {
                         $model_name .= $suffix;
                     }
                     $union_types[] = $model_name;
@@ -310,8 +310,7 @@ class InterfaceGenerator extends Command
                 $union_types = implode(' | ', array_unique($union_types));
                 $model_interface .= "   $method_name?: $union_types;\n";
 
-            }
-            else if ($relationship instanceof HasMany || $relationship instanceof BelongsToMany || $relationship instanceof MorphMany) {
+            } elseif ($relationship instanceof HasMany || $relationship instanceof BelongsToMany || $relationship instanceof MorphMany) {
                 $model_interface .= "   $method_name?: {$related_interface_name}[];\n";
             } else {
                 $model_interface .= "   $method_name?: $related_interface_name;\n";
@@ -319,7 +318,8 @@ class InterfaceGenerator extends Command
         }
     }
 
-    public function findModelsContainingPolymorphicRelationship($polymorphic_model_name){
+    public function findModelsContainingPolymorphicRelationship($polymorphic_model_name)
+    {
         $models = $this->getModels('all');
 
         $found_models = [];
@@ -331,6 +331,7 @@ class InterfaceGenerator extends Command
                 $found_models[] = $model;
             }
         }
+
         return $found_models;
     }
 }
